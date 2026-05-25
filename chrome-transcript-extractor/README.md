@@ -73,6 +73,31 @@ Because the Prompt API runs fully locally on your device, you need to enable the
 
 ---
 
+## 🛠️ Troubleshooting & Tips
+
+### 1. "Gemini Nano model is unavailable"
+If the extension reports that the model is unavailable despite enabling flags:
+*   Go to **`chrome://on-device-internals`** and click the **Model Status** tab to check the download state.
+*   If the download hasn't started, open the extension, go to the **AI Study Guide** tab, and click **Generate Study Guide** to force-trigger the download.
+*   Alternatively, open the extension's console and run:
+    ```javascript
+    await LanguageModel.create({
+      expectedInputs: [{ type: "text", languages: ["en"] }],
+      expectedOutputs: [{ type: "text", languages: ["en"] }]
+    });
+    ```
+
+### 2. Page-level CSP Blocks (e.g. on Udemy, YouTube)
+If you try to test the model by running `await LanguageModel.create()` in the Chrome DevTools console of a webpage with strict security policies (like Udemy), you might get a `net::ERR_FILE_NOT_FOUND` error on a `blob:` URL.
+*   **Why**: The website's Content Security Policy blocks script/worker creation from dynamic `blob:` origins.
+*   **Solution**: Always inspect and test the model in the **Extension context**. Right-click inside the extension popup, click **Inspect**, and run your code in *that* console tab. The extension environment bypasses page-level CSP restrictions.
+
+### 3. File Exports
+*   Downloads from the **Extractor** tab will save as plain text (`.txt` files).
+*   Downloads from the **AI Study Guide** tab will save as Markdown (`.md` files) to preserve the rich layout, headings, and code snippets when imported into Obsidian or Notion.
+
+---
+
 ## 🔒 Privacy & Security
 
 This extension is built with absolute privacy in mind:
@@ -84,3 +109,4 @@ This extension is built with absolute privacy in mind:
 ## 📄 License
 
 This project is licensed under the MIT License.
+
