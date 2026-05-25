@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Transcript & Text Extractor Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-container">
+        <img class="app-logo" src="../icons/icon-48.png" alt="Logo">
+        <div class="title-meta">
+          <h1>Transcript Extractor</h1>
+          <span class="version-badge">v1.1 AI Pro</span>
+        </div>
+      </div>
+      <div id="tab-status" class="status-indicator" title="Detecting page status...">
+        <span class="status-dot"></span>
+        <span id="status-text" class="status-text">Active Tab</span>
+      </div>
+    </header>
+
+    <!-- Tabs Navigation -->
+    <nav class="tabs-nav">
+      <button id="tab-btn-extractor" class="tab-btn active" role="tab" aria-selected="true" aria-controls="view-extractor">
+        <svg class="tab-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Extractor
+      </button>
+      <button id="tab-btn-ai" class="tab-btn" role="tab" aria-selected="false" aria-controls="view-ai">
+        <svg class="tab-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        AI Study Guide
+      </button>
+      <div class="tab-underline"></div>
+    </nav>
+
+    <!-- Source URL / Title Info -->
+    <div id="source-card" class="source-card hidden">
+      <span class="source-label">Source:</span>
+      <span id="source-title" class="source-title">Loading...</span>
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+      
+      <!-- EXTRACTOR TAB VIEW -->
+      <div id="view-extractor" class="tab-view active" role="tabpanel">
+        <!-- Search & Statistics Bar -->
+        <div class="search-stats-bar">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" id="search-input" placeholder="Search in text...">
+          </div>
+          <div class="stats-counter">
+            <span id="char-count" class="stat-item">0 ch</span>
+            <span class="stat-separator">|</span>
+            <span id="word-count" class="stat-item">0 w</span>
+          </div>
+        </div>
+
+        <!-- Text Box Container -->
+        <div class="text-container">
+          <textarea id="text-output" placeholder="Extracted text will appear here. You can also paste or edit text directly..." spellcheck="false"></textarea>
+          <!-- Overlay Feedback -->
+          <div id="toast-overlay" class="toast-overlay">Copied to Clipboard!</div>
+        </div>
+
+        <!-- Action Panel -->
+        <section class="action-grid">
+          <button id="btn-extract-auto" class="btn btn-primary" title="Extract readable content from the active tab">
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Auto-Extract
+          </button>
+
+          <button id="btn-copy" class="btn btn-accent" title="Copy text to clipboard">
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            Copy Text
+          </button>
+
+          <button id="btn-extract-youtube" class="btn btn-youtube hidden" title="Extract transcript from this YouTube video">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+            YouTube Extract
+          </button>
+
+          <button id="btn-download" class="btn btn-secondary" title="Download text as .txt file">
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download .txt
+          </button>
+        </section>
+
+        <!-- Advanced Formatting Panel -->
+        <section class="tools-section">
+          <h2 class="section-title">Text Formatting Tools</h2>
+          <div class="tool-buttons">
+            <button id="btn-format-strip-times" class="tool-btn" title="Remove timestamp tags like [00:00]">
+              Strip Timestamps
+            </button>
+            <button id="btn-format-no-empty" class="tool-btn" title="Remove blank lines">
+              Remove Blank Lines
+            </button>
+            <button id="btn-format-clean-spaces" class="tool-btn" title="Remove consecutive double spaces">
+              Remove Extra Spaces
+            </button>
+            <button id="btn-clear" class="tool-btn btn-clear-text" title="Clear current text">
+              Clear
+            </button>
+          </div>
+        </section>
+
+        <!-- Collapsible Settings Header -->
+        <section class="settings-section">
+          <button id="settings-toggle" class="settings-toggle-btn">
+            <span>Settings & Custom Selector</span>
+            <svg class="toggle-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Collapsible Content -->
+          <div id="settings-content" class="settings-content hidden">
+            <div class="settings-row">
+              <label for="toggle-autocopy" class="switch-label">Auto-Copy on Extract</label>
+              <label class="switch">
+                <input type="checkbox" id="toggle-autocopy" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="selector-input-group">
+              <input type="text" id="selector-input" placeholder="e.g. div.article-body, #transcript">
+              <button id="btn-extract-selector" class="btn btn-small" title="Extract text using the custom CSS selector">
+                Extract
+              </button>
+            </div>
+            <span class="helper-text">Enter any CSS selector to target specific DOM nodes.</span>
+          </div>
+        </section>
+      </div>
+
+      <!-- AI STUDY GUIDE TAB VIEW -->
+      <div id="view-ai" class="tab-view hidden" role="tabpanel">
+        
+        <!-- On-device AI Availability Card -->
+        <div id="ai-status-card" class="ai-status-card warning">
+          <div class="ai-card-main">
+            <span id="ai-status-icon">🤖</span>
+            <span id="ai-status-text">Checking on-device model (Gemini Nano) availability...</span>
+          </div>
+          <div id="ai-help-link" class="ai-help-link hidden">
+            To enable: go to <code class="selectable-code">chrome://flags/#optimization-guide-on-device-model</code> and set it to <strong>Enabled</strong>, then restart Chrome.
+          </div>
+        </div>
+
+        <!-- Download progress bar -->
+        <div id="ai-progress-container" class="progress-container hidden">
+          <div class="progress-label-row">
+            <span>Downloading Gemini Nano...</span>
+            <span id="ai-progress-percent">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="ai-progress-bar" class="progress-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- AI Actions Row -->
+        <div class="ai-action-row">
+          <button id="btn-generate-guide" class="btn btn-primary btn-full" disabled>
+            <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Generate Study Guide
+          </button>
+          
+          <button id="btn-cancel-guide" class="btn btn-secondary hidden" title="Cancel generation">
+            Cancel
+          </button>
+        </div>
+
+        <!-- AI Study Guide Viewer -->
+        <div class="ai-output-container">
+          <div class="ai-output-header">
+            <span class="ai-output-label">Generated Study Guide</span>
+            <div class="ai-output-actions">
+              <button id="btn-copy-ai" class="tool-btn" disabled>Copy</button>
+              <button id="btn-download-ai" class="tool-btn" disabled>Download .md</button>
+            </div>
+          </div>
+          <div id="ai-output-viewer" class="ai-output-viewer" data-placeholder="The structured AI Study Guide will stream here. First, extract text on the 'Extractor' tab, then click 'Generate Study Guide'."></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../utils/helper.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
